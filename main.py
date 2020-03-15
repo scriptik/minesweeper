@@ -1,4 +1,8 @@
 import pygame
+import sys
+import time
+import random
+import math
 from pygame.locals import *
 from spritesheet_functions import SpriteSheet
 #from mainfield import mainfield
@@ -143,6 +147,117 @@ class allfield(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image_cover = minesign_image.get_image(305, 32, 20, 20)
+        self.bombCount = 15
+        self.ROWS = 9
+        self.COLUMNS = 9
+
+        #Define the defualt array for mineField, touchingField, and coverField.
+        self.mineField = [
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             ]
+        self.touchingField = [
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             ]
+        self.coverField = [
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             ]
+        self.mineField = self.placeBombs()
+        for blockY in range(self.ROWS):
+             for blockX in range(self.COLUMNS):
+                  self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS, self.mineField, self.touchingField)
+        print(self.touchingField)
+    #Randomly place bombs in mineField.
+    def placeBombs(self):
+        mineField = [
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             ]
+        bombCount = 15
+        COLUMNS = 9
+        ROWS = 9
+
+        bombpos =[]
+        answerSize = 0
+        #Randomly generate mine coordinates withing the array.
+
+        while answerSize < bombCount:
+             tempX = str(random.randrange(0, COLUMNS))
+             tempY = str(random.randrange(0, ROWS))
+             pos = tempX+tempY
+             if pos not in bombpos:
+                 answerSize += 1
+                 bombpos.append(pos)
+
+        for pos in bombpos:
+            tempX = int(pos[0])
+            tempY = int(pos[1])
+            mineField[tempX][tempY] = 1
+
+        print(bombpos)
+        print(len(bombpos))
+        print(mineField)
+        return mineField
+
+    #Determine the amount of surrounding bombs for the given index in touchingField.	
+    def searchSurrounding(self,blockX,blockY, ROWS, COLUMNS, mineField,touchingField):
+        blockX = blockX
+        blockY = blockY
+        mineField = mineField
+        touchingField = touchingField
+        if mineField[blockY-1][blockX-1] == 1 and blockY > 0 and blockX > 0:
+                touchingField[blockY][blockX] += 1
+
+        if mineField[blockY-1][blockX] == 1 and blockY > 0:
+                touchingField[blockY][blockX] += 1
+
+        if blockX < COLUMNS-1 and mineField[blockY-1][blockX+1] == 1 and blockY > 0:
+                touchingField[blockY][blockX] += 1
+
+        if mineField[blockY][blockX-1] == 1 and blockX > 0:
+                touchingField[blockY][blockX] += 1
+
+        if blockX < COLUMNS-1 and mineField[blockY][blockX+1] == 1:
+                touchingField[blockY][blockX] += 1
+
+        if blockY < ROWS-1 and mineField[blockY+1][blockX-1] == 1 and blockX > 0:
+                touchingField[blockY][blockX] += 1
+
+        if blockY < ROWS-1 and mineField[blockY+1][blockX] == 1 :
+                touchingField[blockY][blockX] += 1
+
+        if blockY < ROWS-1 and blockX < COLUMNS-1 and mineField[blockY+1][blockX+1] == 1:
+                touchingField[blockY][blockX] += 1
     def update(self):
         #print(MAX_TIME-seconds)
         pass
