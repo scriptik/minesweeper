@@ -13,6 +13,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 
 MAX_TIME = 180
+BOMBCOUNT = 20
 timeElapsed = 0
 timeEnd = False
 
@@ -120,7 +121,7 @@ class TimerDig(pygame.sprite.Sprite):
 class BombCounter(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.bombCount = 15
+        self.bombCount = BOMBCOUNT
     def changecount(self):
         #self.x_point, self.y_point = Pointer.rect.topleft
         print(Pointer.rect.topleft)
@@ -147,7 +148,7 @@ class allfield(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image_cover = minesign_image.get_image(305, 32, 20, 20)
-        self.bombCount = 15
+        self.bombCount = BOMBCOUNT
         self.ROWS = 9
         self.COLUMNS = 9
 
@@ -185,13 +186,13 @@ class allfield(pygame.sprite.Sprite):
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
              ]
-        self.mineField = self.placeBombs()
+        self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
                   self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS, self.mineField, self.touchingField)
         print(self.touchingField)
     #Randomly place bombs in mineField.
-    def placeBombs(self):
+    def placeBombs(self,bombCount):
         mineField = [
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
@@ -203,7 +204,7 @@ class allfield(pygame.sprite.Sprite):
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
              ]
-        bombCount = 15
+        #bombCount = 15
         COLUMNS = 9
         ROWS = 9
 
@@ -258,6 +259,70 @@ class allfield(pygame.sprite.Sprite):
 
         if blockY < ROWS-1 and blockX < COLUMNS-1 and mineField[blockY+1][blockX+1] == 1:
                 touchingField[blockY][blockX] += 1
+    #Display text object in gameDispay.
+    def textDisplay(text, x, y, color, type):
+        if type == "Block":
+                numberText = pygame.font.Font("Media/minesweeper.ttf", round(TILE_SIZE*(2/3)-1))
+                textSurf, textRect = textObjects(text, numberText, color)
+                textRect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
+                screen.blit(textSurf, textRect)
+    #Draw the image as a number from touchingField or as a bomb from mineField.
+    def bombBlock(arrayCol, arrayRow):
+        blockX = arrayCol * TILE_SIZE
+        blockY = arrayRow * TILE_SIZE
+
+        touchingBombs = str(touchingField[arrayRow][arrayCol])
+        print(touchingBombs)
+        touchingBombsLabel = str(touchingBombs)
+        print(touchingBombsLabel)
+
+        #Change the block coordinates to center the sprites in gameDisplay.
+        blockX += PADDING
+        blockY += MARGIN*2 + PADDING*2
+
+        blockType = "Blank"
+
+        one = (0,0,255)
+        two = (0,123,0)
+        three = (255,0,0)
+        four = (0,0,123)
+        five = (123,0,0)
+        six = (0,123,123)
+        seven = (0,255,0)
+        eight = (123,123,123)
+        #labelColors = {"1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight"}
+
+        #If the position in mineField is 1, this block is a bomb instead of a label.
+        if mineField[arrayRow][arrayCol] == 1:
+                blockType = "Bomb"
+
+        #labelColor = labelColors[touchingBombsLabel]
+
+        if touchingBombsLabel == "1":
+                labelColor = one
+        elif touchingBombsLabel == "2":
+                labelColor = two
+        elif touchingBombsLabel == "3":
+                labelColor = three
+        elif touchingBombsLabel == "4":
+                labelColor = four
+        elif touchingBombsLabel == "5":
+                labelColor = five
+        elif touchingBombsLabel == "6":
+                labelColor = six
+        elif touchingBombsLabel == "7":
+                labelColor = seven
+        elif touchingBombsLabel == "8":
+                labelColor = eight
+
+        if blockType == "Blank" and coverField[arrayRow][arrayCol] == 1:
+                screen.blit(blankImg, (blockX, blockY))
+                if touchingBombsLabel != "0" and coverField[arrayRow][arrayCol] == 1:
+                        textDisplay(touchingBombsLabel, blockX, blockY, labelColor, "Block")
+        elif blockType == "Bomb" and coverField[arrayRow][arrayCol] == 1:
+                screen.blit(bombImg, (blockX, blockY))
+
+
     def update(self):
         #print(MAX_TIME-seconds)
         pass
