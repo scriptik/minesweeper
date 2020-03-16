@@ -128,7 +128,8 @@ class BombCounter(pygame.sprite.Sprite):
         self.bombCount = BOMBCOUNT
     def changecount(self):
         #self.x_point, self.y_point = Pointer.rect.topleft
-        print(Pointer.rect.topleft)
+        #print(Pointer.rect.topleft)
+        return Pointer.rect.topleft
         if self.bombCount > 0:
            self.bombCount -= 1
         elif self.bombCount == 0:
@@ -157,6 +158,7 @@ class allfield(pygame.sprite.Sprite):
         self.bombCount = BOMBCOUNT
         self.ROWS = 9
         self.COLUMNS = 9
+        self.pointerPos = (0, 0)
 
         #Define the defualt array for mineField, touchingField, and coverField.
         self.mineField = [
@@ -296,7 +298,7 @@ class allfield(pygame.sprite.Sprite):
         touchingBombs = str(touchingField[arrayRow][arrayCol])
         touchingBombsLabel = str(touchingBombs)
 
-        #Change the block coordinates to center the sprites in gameDisplay.
+        #Change the block coordinates to center the sprites in screen.
         blockX += PADDING
         blockY += MARGIN*2 + PADDING*2
 
@@ -345,6 +347,91 @@ class allfield(pygame.sprite.Sprite):
         #print(labelColor)
         #print(blockType)
 
+    #Draw the cover, flag, or no image based on the given mineField	index.
+    def coverBlock(self, arrayCol, arrayRow, pointerPos, pressKey):
+            blockX = arrayCol * TILE_SIZE
+            blockY = arrayRow * TILE_SIZE
+            #Change the block coordinates to center the sprites in screen.
+            blockX += PADDING
+            blockY += PADDING*2 + MARGIN*2
+
+            pointPosX, pointPosY = pointerPos
+
+            #Test if the mouse is clicked within cell coordinates.
+            if pressKey == "A":
+            #if pressKey_A == True and pressKey_B == "Left":
+                    if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
+                            if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
+                                    if coverField[arrayRow][arrayCol] == 0:
+                                            coverField[arrayRow][arrayCol] = 1
+                                            testSurrounding(arrayCol, arrayRow)
+                                            if mineField[arrayRow][arrayCol] == 1:
+                                                    coverField[arrayRow][arrayCol] = 3
+                                                    for bY in range(ROWS):
+                                                            for bX in range(COLUMNS):
+                                                                    if coverField[bY][bX] == 2 and mineField[bY][bX] == 0:
+                                                                            coverField[bY][bX] = 4
+                                                                            coverBlock(bX, bY, pointerPos, pressKey)
+                                                    gameOver = "True"
+            if pressKey == "B":
+            #if pressKey_A == True and pressKey_B == "Right":
+                    if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
+                            if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
+                                    if coverField[arrayRow][arrayCol] == 0:
+                                            coverField[arrayRow][arrayCol] = 2
+                                            flagsPlaced += 1
+                                    elif coverField[arrayRow][arrayCol] == 2:
+                                            coverField[arrayRow][arrayCol] = 0
+                                            flagsPlaced -= 1
+
+            if coverField[arrayRow][arrayCol] == 0 and coverField[arrayRow][arrayCol] != 1:
+                    screen.blit(coverImg, (blockX, blockY))
+
+            if coverField[arrayRow][arrayCol] == 2:
+                    screen.blit(flagImg, (blockX, blockY))
+            elif coverField[arrayRow][arrayCol] == 3:
+                    screen.blit(endBombImg, (blockX, blockY))
+            elif coverField[arrayRow][arrayCol] == 4:
+                    screen.blit(noBombImg, (blockX, blockY))
+
+    def test(self,arrayCol, arrayRow, mineField, touchingField, coverField, pressKey):
+        pointPosX, pointPosY = self.pointerPos
+        #if pressKey == "A":
+        #    print("press A")
+        #if pressKey == "B":
+        #    print("press B")
+        #arrayCol= 8
+        #arrayRow= 8
+        blockX = arrayCol * TILE_SIZE
+        blockY = arrayRow * TILE_SIZE
+        #Change the block coordinates to center the sprites in screen.
+        blockX += PADDING - 3
+        blockY += PADDING - 3
+        #blockY += PADDING*2 + MARGIN*2
+
+
+        #Test if the mouse is clicked within cell coordinates.
+        if pressKey == "A":
+                #coverField[arrayRow][arrayCol] = 5
+        #if pressKey_A == True and pressKey_B == "Left":
+                if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
+                        if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
+                                coverField[arrayRow][arrayCol] = 5
+                                if coverField[arrayRow][arrayCol] == 0:
+                                        coverField[arrayRow][arrayCol] = 1
+                                        testSurrounding(arrayCol, arrayRow)
+                                        if mineField[arrayRow][arrayCol] == 1:
+                                                coverField[arrayRow][arrayCol] = 3
+                                                for bY in range(ROWS):
+                                                        for bX in range(COLUMNS):
+                                                                if coverField[bY][bX] == 2 and mineField[bY][bX] == 0:
+                                                                        coverField[bY][bX] = 4
+                                                                        coverBlock(bX, bY, pointerPos, pressKey)
+        if pressKey == "B":
+                coverField[arrayRow][arrayCol] = 0
+        #print(coverField)
+        #print(blockX, blockY,blockX+TILE_SIZE,blockY+TILE_SIZE )
+        #print(pointPosX, pointPosY)
 
     def show(self):
         #print(MAX_TIME-seconds)
@@ -353,6 +440,8 @@ class allfield(pygame.sprite.Sprite):
         #pass
 
     def update(self):
+        #pointPosX, pointPosY = self.pointerPos
+        #print(pointPosX, pointPosY)
         pass
 
 
@@ -381,7 +470,20 @@ while not done:
             if event.key == pygame.K_LEFT:
                 Pointer.x_change = -3
             if event.key == pygame.K_a:
-                BombCounter.changecount()
+                Allfield.pointerPos = BombCounter.changecount()
+                pressKey = "A"
+                for arrayRow in range(0,9):
+                    for arrayCol in range(0,9):
+                        Allfield.test(arrayCol, arrayRow, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
+                #Allfield.test(0, 4, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
+                print(Allfield.coverField)
+                #print(blockX, blockY,blockX+TILE_SIZE,blockY+TILE_SIZE )
+                #print(pointPosX, pointPosY)
+                #Allfield.test(Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
+            if event.key == pygame.K_b:
+                Allfield.pointerPos = BombCounter.changecount()
+                pressKey = "B"
+                Allfield.test(4, 4, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
