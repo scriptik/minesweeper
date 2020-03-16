@@ -14,6 +14,10 @@ GREEN = (0, 255, 0)
 
 MAX_TIME = 180
 BOMBCOUNT = 20
+TILE_SIZE = 23
+#MARGIN = TILE_SIZE
+MARGIN = 0
+PADDING = 8
 timeElapsed = 0
 timeEnd = False
 
@@ -148,6 +152,8 @@ class allfield(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image_cover = minesign_image.get_image(305, 32, 20, 20)
+        self.blankImg = minesign_image.get_image(330, 32, 20, 20)
+        self.bombImg = minesign_image.get_image(380, 32, 20, 20)
         self.bombCount = BOMBCOUNT
         self.ROWS = 9
         self.COLUMNS = 9
@@ -176,16 +182,27 @@ class allfield(pygame.sprite.Sprite):
              [0,0,0,0,0,0,0,0,0],
              ]
         self.coverField = [
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
+             [1,1,1,1,1,1,1,1,1],
              ]
+        #self.coverField = [
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0,0],
+        #     ]
         self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
@@ -259,22 +276,25 @@ class allfield(pygame.sprite.Sprite):
 
         if blockY < ROWS-1 and blockX < COLUMNS-1 and mineField[blockY+1][blockX+1] == 1:
                 touchingField[blockY][blockX] += 1
-    #Display text object in gameDispay.
-    def textDisplay(text, x, y, color, type):
+    #Returns displayable textSurface.get_rect().
+    def textObjects(self, text, font, color):
+        textSurface = font.render(text, True, color)
+        return textSurface, textSurface.get_rect()
+        #Display text object in gameDispay.
+    def textDisplay(self, text, x, y, color, type):
         if type == "Block":
-                numberText = pygame.font.Font("Media/minesweeper.ttf", round(TILE_SIZE*(2/3)-1))
-                textSurf, textRect = textObjects(text, numberText, color)
-                textRect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
+                numberText = pygame.font.Font("minesweeper.ttf", round(TILE_SIZE*(2/3)-4))
+                textSurf, textRect = self.textObjects(text, numberText, color)
+                #textRect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
+                textRect.center = (int(x + TILE_SIZE/2), int(y + TILE_SIZE/2))
                 screen.blit(textSurf, textRect)
     #Draw the image as a number from touchingField or as a bomb from mineField.
-    def bombBlock(arrayCol, arrayRow):
+    def bombBlock(self, mineField, touchingField, coverField, arrayCol, arrayRow, bombImg, blankImg):
         blockX = arrayCol * TILE_SIZE
         blockY = arrayRow * TILE_SIZE
 
         touchingBombs = str(touchingField[arrayRow][arrayCol])
-        print(touchingBombs)
         touchingBombsLabel = str(touchingBombs)
-        print(touchingBombsLabel)
 
         #Change the block coordinates to center the sprites in gameDisplay.
         blockX += PADDING
@@ -290,7 +310,8 @@ class allfield(pygame.sprite.Sprite):
         six = (0,123,123)
         seven = (0,255,0)
         eight = (123,123,123)
-        #labelColors = {"1":"one","2":"two","3":"three","4":"four","5":"five","6":"six","7":"seven","8":"eight"}
+        #labelColors = {"1":(0,0,255),"2":(0,123,0),"3":(255,0,0),"4":(0,0,123),"5":(123,0,0),\
+        #        "6":(0,123,123),"7":(0,255,0),"8":(123,123,123)}
 
         #If the position in mineField is 1, this block is a bomb instead of a label.
         if mineField[arrayRow][arrayCol] == 1:
@@ -318,15 +339,21 @@ class allfield(pygame.sprite.Sprite):
         if blockType == "Blank" and coverField[arrayRow][arrayCol] == 1:
                 screen.blit(blankImg, (blockX, blockY))
                 if touchingBombsLabel != "0" and coverField[arrayRow][arrayCol] == 1:
-                        textDisplay(touchingBombsLabel, blockX, blockY, labelColor, "Block")
+                        self.textDisplay(touchingBombsLabel, blockX, blockY, labelColor, "Block")
         elif blockType == "Bomb" and coverField[arrayRow][arrayCol] == 1:
                 screen.blit(bombImg, (blockX, blockY))
+        #print(labelColor)
+        #print(blockType)
 
+
+    def show(self):
+        #print(MAX_TIME-seconds)
+        #self.bombBlock(arrayCol, arrayRow, self.bombImg, self.blankImg)
+        self.bombBlock(self.mineField, self.touchingField,self.coverField, arrayCol, arrayRow, self.bombImg, self.blankImg)
+        #pass
 
     def update(self):
-        #print(MAX_TIME-seconds)
         pass
-
 
 
 all_sprites = pygame.sprite.Group()
@@ -338,7 +365,7 @@ all_sprites.add(TimerDig,BombCounter,Allfield)
 done = False
 
 while not done:
-    clock.tick_busy_loop(60)
+    #clock.tick_busy_loop(30)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
@@ -346,13 +373,13 @@ while not done:
             if event.key == K_ESCAPE:
                 done = True
             if event.key == pygame.K_UP:
-                Pointer.y_change = -2
+                Pointer.y_change = -3
             if event.key == pygame.K_DOWN:
-                Pointer.y_change = 2
+                Pointer.y_change = 3
             if event.key == pygame.K_RIGHT:
-                Pointer.x_change = 2
+                Pointer.x_change = 3
             if event.key == pygame.K_LEFT:
-                Pointer.x_change = -2
+                Pointer.x_change = -3
             if event.key == pygame.K_a:
                 BombCounter.changecount()
         if event.type == pygame.KEYUP:
@@ -375,13 +402,17 @@ while not done:
     screen.blit(BombCounter.image1, (260,115))
     screen.blit(BombCounter.image2, (285,115))
     #screen.blit(Pointer.image_poin, (Pointer.x_point,Pointer.y_point))
-    for i in range(0,10):
-        for j in range(0,10):
-            screen.blit(Allfield.image_cover, (3+(23*i), 3+(23*j)))
+    for arrayRow in range(0,9):
+        for arrayCol in range(0,9):
+             Allfield.show()
+    #for i in range(0,10):
+    #    for j in range(0,10):
+    #        screen.blit(Allfield.image_cover, (3+(23*i), 3+(23*j)))
     screen.blit(Pointer.image_poin, (Pointer.rect))
-    timeElapsed += 16.66676
+    #timeElapsed += 16.66676
+    timeElapsed += 40
     pygame.display.flip()
-    #clock.tick(30)
+    clock.tick(30)
 
 
 pygame.quit()
