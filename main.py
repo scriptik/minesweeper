@@ -469,6 +469,7 @@ class allfield(pygame.sprite.Sprite):
                    self.coverField[arrayRow][arrayCol] = 2
                 if self.mineField[arrayRow][arrayCol] == 0 and self.coverField[arrayRow][arrayCol] == 1:
                    self.coverField[arrayRow][arrayCol] = 4
+                   BombCounter.bombCount += 1
 
 
     def pressA(self):
