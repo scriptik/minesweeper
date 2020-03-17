@@ -198,7 +198,7 @@ class allfield(pygame.sprite.Sprite):
         #     [1,1,1,1,1,1,1,1,1],
         #     ]
         self.coverField = [
-             [0,0,1,0,0,0,1,0,0],
+             [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
@@ -457,12 +457,28 @@ class allfield(pygame.sprite.Sprite):
                                    xy = (arrayRow, arrayCol)
         return (xy)
 
+    def pressA(self):
+        Row, Col = self.findCell()
+        #print(Row, Col)
+        if not Row == 9 and not Col == 9:
+           if self.coverField[Row][Col] == 1:
+              pass
+           elif self.coverField[Row][Col] == 0:
+              self.coverField[Row][Col] = 2
+              #BombCounter.bombCount += 1
+        else:
+            pass
+
     def pressB(self):
         Row, Col = self.findCell()
         #print(Row, Col)
         if not Row == 9 and not Col == 9:
            if self.coverField[Row][Col] == 0:
               self.coverField[Row][Col] = 1
+              BombCounter.bombCount -= 1
+           elif self.coverField[Row][Col] == 1:
+              self.coverField[Row][Col] = 0
+              BombCounter.bombCount += 1
         else:
             pass
 
@@ -511,10 +527,7 @@ while not done:
                 Pointer.x_change = -3
             if event.key == pygame.K_a:
                 Allfield.pointerPos = BombCounter.changecount()
-                pressKey = "A"
-                for arrayCol in range(0,9):
-                    for arrayRow in range(0,9):
-                        Allfield.test(arrayCol, arrayRow, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
+                Allfield.pressA()
                 #Allfield.test(0, 4, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
                 print(Allfield.coverField)
                 #print(blockX, blockY,blockX+TILE_SIZE,blockY+TILE_SIZE )
@@ -522,8 +535,6 @@ while not done:
                 #Allfield.test(Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
             if event.key == pygame.K_b:
                 Allfield.pointerPos = BombCounter.changecount()
-                pressKey = "B"
-                #Allfield.findCell()
                 Allfield.pressB()
                 #for arrayCol in range(0,9):
                 #    for arrayRow in range(0,9):
