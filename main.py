@@ -214,7 +214,7 @@ class allfield(pygame.sprite.Sprite):
         self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
-                  self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS, self.mineField, self.touchingField)
+                  self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS)
         print(self.touchingField)
     #Randomly place bombs in mineField.
     def placeBombs(self,bombCount):
@@ -256,34 +256,34 @@ class allfield(pygame.sprite.Sprite):
         return mineField
 
     #Determine the amount of surrounding bombs for the given index in touchingField.	
-    def searchSurrounding(self,blockX,blockY, ROWS, COLUMNS, mineField,touchingField):
+    def searchSurrounding(self,blockX,blockY, ROWS, COLUMNS):
         blockX = blockX
         blockY = blockY
-        mineField = mineField
-        touchingField = touchingField
-        if mineField[blockY-1][blockX-1] == 1 and blockY > 0 and blockX > 0:
-                touchingField[blockY][blockX] += 1
+        if self.mineField[blockY-1][blockX-1] == 1 and blockY > 0 and blockX > 0:
+                self.touchingField[blockY][blockX] += 1
 
-        if mineField[blockY-1][blockX] == 1 and blockY > 0:
-                touchingField[blockY][blockX] += 1
+        if self.mineField[blockY-1][blockX] == 1 and blockY > 0:
+                self.touchingField[blockY][blockX] += 1
 
-        if blockX < COLUMNS-1 and mineField[blockY-1][blockX+1] == 1 and blockY > 0:
-                touchingField[blockY][blockX] += 1
+        if blockX < COLUMNS-1 and self.mineField[blockY-1][blockX+1] == 1 and blockY > 0:
+                self.touchingField[blockY][blockX] += 1
 
-        if mineField[blockY][blockX-1] == 1 and blockX > 0:
-                touchingField[blockY][blockX] += 1
+        if self.mineField[blockY][blockX-1] == 1 and blockX > 0:
+                self.touchingField[blockY][blockX] += 1
 
-        if blockX < COLUMNS-1 and mineField[blockY][blockX+1] == 1:
-                touchingField[blockY][blockX] += 1
+        if blockX < COLUMNS-1 and self.mineField[blockY][blockX+1] == 1:
+                self.touchingField[blockY][blockX] += 1
 
-        if blockY < ROWS-1 and mineField[blockY+1][blockX-1] == 1 and blockX > 0:
-                touchingField[blockY][blockX] += 1
+        if blockY < ROWS-1 and self.mineField[blockY+1][blockX-1] == 1 and blockX > 0:
+                self.touchingField[blockY][blockX] += 1
 
-        if blockY < ROWS-1 and mineField[blockY+1][blockX] == 1 :
-                touchingField[blockY][blockX] += 1
+        if blockY < ROWS-1 and self.mineField[blockY+1][blockX] == 1 :
+                self.touchingField[blockY][blockX] += 1
 
-        if blockY < ROWS-1 and blockX < COLUMNS-1 and mineField[blockY+1][blockX+1] == 1:
-                touchingField[blockY][blockX] += 1
+        if blockY < ROWS-1 and blockX < COLUMNS-1 and self.mineField[blockY+1][blockX+1] == 1:
+                self.touchingField[blockY][blockX] += 1
+
+
     #Returns displayable textSurface.get_rect().
     def textObjects(self, text, font, color):
         textSurface = font.render(text, True, color)
