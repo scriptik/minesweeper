@@ -297,19 +297,9 @@ class allfield(pygame.sprite.Sprite):
                 textRect.center = (int(x + TILE_SIZE/2), int(y + TILE_SIZE/2))
                 screen.blit(textSurf, textRect)
     #Draw the image as a number from touchingField or as a bomb from mineField.
-    def bombBlock(self, mineField, touchingField, coverField, arrayCol, arrayRow, bombImg, blankImg):
-        blockX = arrayCol * TILE_SIZE
-        blockY = arrayRow * TILE_SIZE
-
-        touchingBombs = str(touchingField[arrayRow][arrayCol])
-        touchingBombsLabel = str(touchingBombs)
-
-        #Change the block coordinates to center the sprites in screen.
-        blockX += PADDING
-        blockY += MARGIN*2 + PADDING*2
-
-        blockType = "Blank"
-
+    def numBlock(self, blockX, blockY):
+        arrayRow = blockX
+        arrayCol = blockY
         one = (0,0,255)
         two = (0,123,0)
         three = (255,0,0)
@@ -318,15 +308,8 @@ class allfield(pygame.sprite.Sprite):
         six = (0,123,123)
         seven = (0,255,0)
         eight = (123,123,123)
-        #labelColors = {"1":(0,0,255),"2":(0,123,0),"3":(255,0,0),"4":(0,0,123),"5":(123,0,0),\
-        #        "6":(0,123,123),"7":(0,255,0),"8":(123,123,123)}
-
-        #If the position in mineField is 1, this block is a bomb instead of a label.
-        if mineField[arrayRow][arrayCol] == 1:
-                blockType = "Bomb"
-
-        #labelColor = labelColors[touchingBombsLabel]
-
+        touchingBombs = str(self.touchingField[arrayRow][arrayCol])
+        touchingBombsLabel = str(touchingBombs)
         if touchingBombsLabel == "1":
                 labelColor = one
         elif touchingBombsLabel == "2":
@@ -344,68 +327,12 @@ class allfield(pygame.sprite.Sprite):
         elif touchingBombsLabel == "8":
                 labelColor = eight
 
-        if blockType == "Blank" and coverField[arrayRow][arrayCol] == 1:
-                screen.blit(blankImg, (blockX, blockY))
-                if touchingBombsLabel != "0" and coverField[arrayRow][arrayCol] == 1:
-                        self.textDisplay(touchingBombsLabel, blockX, blockY, labelColor, "Block")
-        elif blockType == "Bomb" and coverField[arrayRow][arrayCol] == 1:
-                screen.blit(bombImg, (blockX, blockY))
-        #print(labelColor)
-        #print(blockType)
-
-    #Draw the cover, flag, or no image based on the given mineField	index. coverBlock
-    def test(self,arrayCol, arrayRow, mineField, touchingField, coverField, pressKey):
-        COLUMNS = 9
-        ROWS = 9
-        pointPosX, pointPosY = self.pointerPos
-        #if pressKey == "A":
-        #    print("press A")
-        #if pressKey == "B":
-        #    print("press B")
-        #arrayCol= 8
-        #arrayRow= 8
-        blockX = arrayCol * TILE_SIZE
-        blockY = arrayRow * TILE_SIZE
-        #Change the block coordinates to center the sprites in screen.
-        blockX += PADDING - 3
-        blockY += PADDING - 3
-        #blockY += PADDING*2 + MARGIN*2
-
-
-        #Test if the mouse is clicked within cell coordinates.
-        if pressKey == "A":
-                #coverField[arrayRow][arrayCol] = 5
-        #if pressKey_A == True and pressKey_B == "Left":
-                if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
-                        if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
-                                #coverField[arrayRow][arrayCol] = 5
-                                if coverField[arrayRow][arrayCol] == 0:
-                                    coverField[arrayRow][arrayCol] = 1
-                                    self.testSurrounding(arrayCol, arrayRow, self.mineField, self.touchingField, self.coverField)
-                                    if mineField[arrayRow][arrayCol] == 1:
-                                            coverField[arrayRow][arrayCol] = 3
-                                            for bY in range(ROWS):
-                                                    for bX in range(COLUMNS):
-                                                            if coverField[bY][bX] == 2 and mineField[bY][bX] == 0:
-                                                                    coverField[bY][bX] = 4
-                                                                    coverBlock(bX, bY, pointerPos, pressKey)
-        if pressKey == "B":
-                if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
-                        if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
-                                coverField[arrayRow][arrayCol] = 0
-
-	#if self.coverField[arrayRow][arrayCol] == 0 and self.coverField[arrayRow][arrayCol] != 1:
-	#	screen.blit(coverImg, (blockX, blockY))
-
-	#if self.coverField[arrayRow][arrayCol] == 2:
-	#	screen.blit(flagImg, (blockX, blockY))
-	#elif self.coverField[arrayRow][arrayCol] == 3:
-	#	screen.blit(endBombImg, (blockX, blockY))
-	#elif self.coverField[arrayRow][arrayCol] == 4:
-	#	screen.blit(noBombImg, (blockX, blockY))
-        #print(coverField)
-        #print(blockX, blockY,blockX+TILE_SIZE,blockY+TILE_SIZE )
-        #print(pointPosX, pointPosY)
+        if touchingBombsLabel != "0":
+                return (touchingBombsLabel, labelColor)
+                #self.textDisplay(touchingBombsLabel, blockX, blockY, labelColor, "Block")
+        if touchingBombsLabel == "0":
+                labelColor = "0",(0,0,0)
+                return (touchingBombsLabel, labelColor)
 
     #Recursively uncover the blocks that are not a bomb, in layers outwards.
     def testSurrounding(self, cellColumn, cellRow, mineField, touchingField, coverField):
@@ -520,6 +447,9 @@ class allfield(pygame.sprite.Sprite):
                    screen.blit(self.noBombImg, (blockX, blockY))
                 elif self.coverField[arrayRow][arrayCol] == 5:
                    screen.blit(self.blankImg, (blockX, blockY))
+                   num1 , num2 = self.numBlock(arrayRow, arrayCol)
+                   if num1 != "0":
+                      self.textDisplay(num1, blockX, blockY, num2, "Block")
         #pass
 
     def update(self):
