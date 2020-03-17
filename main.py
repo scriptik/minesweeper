@@ -26,7 +26,7 @@ timeEnd = False
 # Call this function so the Pygame library can initialize itself
 pygame.init()
 
-# Create an 800x600 sized screen
+# Create an 320x240 sized screen
 screen = pygame.display.set_mode([320, 240])
 
 # This sets the name of the window
@@ -129,8 +129,6 @@ class BombCounter(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.bombCount = BOMBCOUNT
     def changecount(self):
-        #self.x_point, self.y_point = Pointer.rect.topleft
-        #print(Pointer.rect.topleft)
         return Pointer.rect.topleft
         if self.bombCount > 0:
            self.bombCount -= 1
@@ -189,17 +187,6 @@ class allfield(pygame.sprite.Sprite):
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
              ]
-        #self.coverField = [
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     [1,1,1,1,1,1,1,1,1],
-        #     ]
         self.coverField = [
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
@@ -490,10 +477,6 @@ while not done:
             if event.key == pygame.K_b:
                 Allfield.pointerPos = BombCounter.changecount()
                 Allfield.pressB()
-                #for arrayCol in range(0,9):
-                #    for arrayRow in range(0,9):
-                #        Allfield.test(arrayCol, arrayRow, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
-                #print(Allfield.coverField)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
@@ -513,14 +496,7 @@ while not done:
     screen.blit(TimerDig.image3, (285,40))
     screen.blit(BombCounter.image1, (260,115))
     screen.blit(BombCounter.image2, (285,115))
-    #screen.blit(Pointer.image_poin, (Pointer.x_point,Pointer.y_point))
-    #for arrayRow in range(0,9):
-    #    for arrayCol in range(0,9):
-    #         Allfield.show()
     Allfield.show()
-    #for i in range(0,10):
-    #    for j in range(0,10):
-    #        screen.blit(Allfield.image_cover, (3+(23*i), 3+(23*j)))
     screen.blit(Pointer.image_poin, (Pointer.rect))
     #timeElapsed += 16.66676
     timeElapsed += 40
