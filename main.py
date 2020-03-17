@@ -13,7 +13,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 
 MAX_TIME = 180
-BOMBCOUNT = 20
+BOMBCOUNT = 10
 TILE_SIZE = 20
 #MARGIN = TILE_SIZE
 MARGIN = 0
@@ -335,43 +335,43 @@ class allfield(pygame.sprite.Sprite):
                 return (touchingBombsLabel, labelColor)
 
     #Recursively uncover the blocks that are not a bomb, in layers outwards.
-    def testSurrounding(self, cellColumn, cellRow, mineField, touchingField, coverField):
+    def testSurrounding(self, cellColumn, cellRow):
         COLUMNS = 9
         ROWS = 9
-        if mineField[cellRow][cellColumn] == 0 and touchingField[cellRow][cellColumn] == 0:
+        if self.mineField[cellRow][cellColumn] == 0 and self.touchingField[cellRow][cellColumn] == 0:
                 #Test if edges are uncoverable.
-                if cellRow > 0 and coverField[cellRow-1][cellColumn] == 0:
-                        coverField[cellRow-1][cellColumn] = 1
-                        self.testSurrounding(cellColumn, cellRow-1, self.mineField, self.touchingField, self.coverField)
+                if cellRow > 0 and self.coverField[cellRow-1][cellColumn] == 0:
+                        self.coverField[cellRow-1][cellColumn] = 5
+                        self.testSurrounding(cellColumn, cellRow-1)
 
-                if cellColumn > 0 and coverField[cellRow][cellColumn-1] == 0:
-                        coverField[cellRow][cellColumn-1] = 1
-                        self.testSurrounding(cellColumn-1, cellRow, self.mineField, self.touchingField, self.coverField)
+                if cellColumn > 0 and self.coverField[cellRow][cellColumn-1] == 0:
+                        self.coverField[cellRow][cellColumn-1] = 5
+                        self.testSurrounding(cellColumn-1, cellRow)
 
-                if cellColumn < COLUMNS-1 and coverField[cellRow][cellColumn+1] == 0:
-                        coverField[cellRow][cellColumn+1] = 1
-                        self.testSurrounding(cellColumn+1, cellRow, self.mineField, self.touchingField, self.coverField)
+                if cellColumn < COLUMNS-1 and self.coverField[cellRow][cellColumn+1] == 0:
+                        self.coverField[cellRow][cellColumn+1] = 5
+                        self.testSurrounding(cellColumn+1, cellRow)
 
-                if cellRow < ROWS-1 and coverField[cellRow+1][cellColumn] == 0:
-                        coverField[cellRow+1][cellColumn] = 1
-                        self.testSurrounding(cellColumn, cellRow+1, self.mineField, self.touchingField, self.coverField)
+                if cellRow < ROWS-1 and self.coverField[cellRow+1][cellColumn] == 0:
+                        self.coverField[cellRow+1][cellColumn] = 5
+                        self.testSurrounding(cellColumn, cellRow+1)
 
                 #Test if corners are uncoverable.
-                if cellRow > 0 and cellColumn > 0 and coverField[cellRow-1][cellColumn-1] == 0:
-                        coverField[cellRow-1][cellColumn-1] = 1
-                        self.testSurrounding(cellColumn-1, cellRow-1, self.mineField, self.touchingField, self.coverField)
+                if cellRow > 0 and cellColumn > 0 and self.coverField[cellRow-1][cellColumn-1] == 0:
+                        self.coverField[cellRow-1][cellColumn-1] = 5
+                        self.testSurrounding(cellColumn-1, cellRow-1)
 
-                if cellColumn < COLUMNS-1 and cellRow > 0 and coverField[cellRow-1][cellColumn+1] == 0:
-                        coverField[cellRow-1][cellColumn+1] = 1
-                        self.testSurrounding(cellColumn+1, cellRow-1, self.mineField, self.touchingField, self.coverField)
+                if cellColumn < COLUMNS-1 and cellRow > 0 and self.coverField[cellRow-1][cellColumn+1] == 0:
+                        self.coverField[cellRow-1][cellColumn+1] = 5
+                        self.testSurrounding(cellColumn+1, cellRow-1)
 
-                if cellRow < ROWS-1 and cellColumn > 0 and coverField[cellRow+1][cellColumn-1] == 0:
-                        coverField[cellRow+1][cellColumn-1] = 1
-                        self.testSurrounding(cellColumn-1, cellRow+1, self.mineField, self.touchingField, self.coverField)
+                if cellRow < ROWS-1 and cellColumn > 0 and self.coverField[cellRow+1][cellColumn-1] == 0:
+                        self.coverField[cellRow+1][cellColumn-1] = 5
+                        self.testSurrounding(cellColumn-1, cellRow+1)
 
-                if cellRow < ROWS-1 and cellColumn < COLUMNS-1 and coverField[cellRow+1][cellColumn+1] == 0:
-                        coverField[cellRow+1][cellColumn+1] = 1
-                self.testSurrounding(cellColumn+1, cellRow+1, self.mineField, self.touchingField, self.coverField)
+                if cellRow < ROWS-1 and cellColumn < COLUMNS-1 and self.coverField[cellRow+1][cellColumn+1] == 0:
+                        self.coverField[cellRow+1][cellColumn+1] = 5
+                        self.testSurrounding(cellColumn+1, cellRow+1)
 
     def findCell(self):
         pointPosX, pointPosY = self.pointerPos
@@ -450,6 +450,8 @@ class allfield(pygame.sprite.Sprite):
                    num1 , num2 = self.numBlock(arrayRow, arrayCol)
                    if num1 != "0":
                       self.textDisplay(num1, blockX, blockY, num2, "Block")
+                   elif num1 == "0":
+                      self.testSurrounding(arrayRow, arrayCol)
         #pass
 
     def update(self):
