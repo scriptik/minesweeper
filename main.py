@@ -159,6 +159,7 @@ class allfield(pygame.sprite.Sprite):
         self.flagImg = minesign_image.get_image(355, 32, 20, 20)
         self.bombImg = minesign_image.get_image(380, 32, 20, 20)
         self.endBombImg = minesign_image.get_image(405, 32, 20, 20)
+        self.noBombImg = minesign_image.get_image(430, 32, 20, 20)
         self.bombCount = BOMBCOUNT
         self.ROWS = 9
         self.COLUMNS = 9
@@ -458,6 +459,16 @@ class allfield(pygame.sprite.Sprite):
                                    xy = (arrayRow, arrayCol)
         return (xy)
 
+    def bombinCover(self):
+        for arrayRow in range(0, ROWS):
+            for arrayCol in range(0, COLUMNS):
+                #print(self.mineField[arrayRow][arrayCol])
+                if self.mineField[arrayRow][arrayCol] == 1 and self.coverField[arrayRow][arrayCol] == 0:
+                   self.coverField[arrayRow][arrayCol] = 2
+                if self.mineField[arrayRow][arrayCol] == 0 and self.coverField[arrayRow][arrayCol] == 1:
+                   self.coverField[arrayRow][arrayCol] = 4
+
+
     def pressA(self):
         Row, Col = self.findCell()
         #print(Row, Col)
@@ -466,6 +477,7 @@ class allfield(pygame.sprite.Sprite):
               pass
            elif self.coverField[Row][Col] == 0 and self.mineField[Row][Col] == 1:
               self.coverField[Row][Col] = 3
+              self.bombinCover()
               #BombCounter.bombCount += 1
         else:
             pass
@@ -477,8 +489,6 @@ class allfield(pygame.sprite.Sprite):
            if self.coverField[Row][Col] == 0 and BombCounter.bombCount > 0:
               self.coverField[Row][Col] = 1
               BombCounter.bombCount -= 1
-              print(BombCounter.bombCount)
-           #elif self.coverField[Row][Col] == 1 and BombCounter.bombCount <= 20:
            elif self.coverField[Row][Col] == 1:
               self.coverField[Row][Col] = 0
               BombCounter.bombCount += 1
@@ -496,8 +506,12 @@ class allfield(pygame.sprite.Sprite):
                    screen.blit(self.blankImg, (blockX, blockY))
                 if self.coverField[arrayRow][arrayCol] == 1:
                    screen.blit(self.flagImg, (blockX, blockY))
+                if self.coverField[arrayRow][arrayCol] == 2:
+                   screen.blit(self.bombImg, (blockX, blockY))
                 if self.coverField[arrayRow][arrayCol] == 3:
                    screen.blit(self.endBombImg, (blockX, blockY))
+                if self.coverField[arrayRow][arrayCol] == 4:
+                   screen.blit(self.noBombImg, (blockX, blockY))
         #pass
 
     def update(self):
