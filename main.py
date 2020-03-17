@@ -164,6 +164,7 @@ class allfield(pygame.sprite.Sprite):
         self.ROWS = 9
         self.COLUMNS = 9
         self.pointerPos = (0, 0)
+        self.gameStop = False
 
         #Define the defualt array for mineField, touchingField, and coverField.
         self.mineField = [
@@ -448,15 +449,16 @@ class allfield(pygame.sprite.Sprite):
     def findCell(self):
         pointPosX, pointPosY = self.pointerPos
         xy = (9,9)
-        for arrayRow in range(0, ROWS):
-            blockY = arrayRow * (TILE_SIZE + 5)
-            blockY += PADDING
-            if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
-               for arrayCol in range(0, COLUMNS):
-                   blockX = arrayCol * (TILE_SIZE + 5)
-                   blockX += PADDING
-                   if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
-                                   xy = (arrayRow, arrayCol)
+        if not self.gameStop:
+           for arrayRow in range(0, ROWS):
+               blockY = arrayRow * (TILE_SIZE + 5)
+               blockY += PADDING
+               if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
+                  for arrayCol in range(0, COLUMNS):
+                      blockX = arrayCol * (TILE_SIZE + 5)
+                      blockX += PADDING
+                      if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
+                                      xy = (arrayRow, arrayCol)
         return (xy)
 
     def bombinCover(self):
@@ -478,9 +480,10 @@ class allfield(pygame.sprite.Sprite):
            elif self.coverField[Row][Col] == 0 and self.mineField[Row][Col] == 1:
               self.coverField[Row][Col] = 3
               self.bombinCover()
+              self.gameStop = True
               #BombCounter.bombCount += 1
            elif self.coverField[Row][Col] == 0 and self.mineField[Row][Col] == 0:
-              self.coverField[Row][Col] = 3
+              self.coverField[Row][Col] = 5
         else:
             pass
 
@@ -505,7 +508,7 @@ class allfield(pygame.sprite.Sprite):
                 blockX += PADDING
                 blockY += PADDING
                 if self.coverField[arrayRow][arrayCol] == 0:
-                   screen.blit(self.blockkImg, (blockX, blockY))
+                   screen.blit(self.blockImg, (blockX, blockY))
                 elif self.coverField[arrayRow][arrayCol] == 1:
                    screen.blit(self.flagImg, (blockX, blockY))
                 elif self.coverField[arrayRow][arrayCol] == 2:
