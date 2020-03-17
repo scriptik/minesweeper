@@ -154,8 +154,8 @@ class BombCounter(pygame.sprite.Sprite):
 class allfield(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image_cover = minesign_image.get_image(305, 32, 20, 20)
-        self.blankImg = minesign_image.get_image(330, 32, 20, 20)
+        self.blankImg = minesign_image.get_image(305, 32, 20, 20)
+        self.blockImg = minesign_image.get_image(330, 32, 20, 20)
         self.flagImg = minesign_image.get_image(355, 32, 20, 20)
         self.bombImg = minesign_image.get_image(380, 32, 20, 20)
         self.endBombImg = minesign_image.get_image(405, 32, 20, 20)
@@ -479,6 +479,8 @@ class allfield(pygame.sprite.Sprite):
               self.coverField[Row][Col] = 3
               self.bombinCover()
               #BombCounter.bombCount += 1
+           elif self.coverField[Row][Col] == 0 and self.mineField[Row][Col] == 0:
+              self.coverField[Row][Col] = 3
         else:
             pass
 
@@ -503,15 +505,17 @@ class allfield(pygame.sprite.Sprite):
                 blockX += PADDING
                 blockY += PADDING
                 if self.coverField[arrayRow][arrayCol] == 0:
-                   screen.blit(self.blankImg, (blockX, blockY))
-                if self.coverField[arrayRow][arrayCol] == 1:
+                   screen.blit(self.blockkImg, (blockX, blockY))
+                elif self.coverField[arrayRow][arrayCol] == 1:
                    screen.blit(self.flagImg, (blockX, blockY))
-                if self.coverField[arrayRow][arrayCol] == 2:
+                elif self.coverField[arrayRow][arrayCol] == 2:
                    screen.blit(self.bombImg, (blockX, blockY))
-                if self.coverField[arrayRow][arrayCol] == 3:
+                elif self.coverField[arrayRow][arrayCol] == 3:
                    screen.blit(self.endBombImg, (blockX, blockY))
-                if self.coverField[arrayRow][arrayCol] == 4:
+                elif self.coverField[arrayRow][arrayCol] == 4:
                    screen.blit(self.noBombImg, (blockX, blockY))
+                elif self.coverField[arrayRow][arrayCol] == 5:
+                   screen.blit(self.blankImg, (blockX, blockY))
         #pass
 
     def update(self):
