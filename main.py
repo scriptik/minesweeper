@@ -158,6 +158,7 @@ class allfield(pygame.sprite.Sprite):
         self.blankImg = minesign_image.get_image(330, 32, 20, 20)
         self.flagImg = minesign_image.get_image(355, 32, 20, 20)
         self.bombImg = minesign_image.get_image(380, 32, 20, 20)
+        self.endBombImg = minesign_image.get_image(405, 32, 20, 20)
         self.bombCount = BOMBCOUNT
         self.ROWS = 9
         self.COLUMNS = 9
@@ -463,8 +464,8 @@ class allfield(pygame.sprite.Sprite):
         if not Row == 9 and not Col == 9:
            if self.coverField[Row][Col] == 1:
               pass
-           elif self.coverField[Row][Col] == 0:
-              self.coverField[Row][Col] = 2
+           elif self.coverField[Row][Col] == 0 and self.mineField[Row][Col] == 1:
+              self.coverField[Row][Col] = 3
               #BombCounter.bombCount += 1
         else:
             pass
@@ -473,9 +474,11 @@ class allfield(pygame.sprite.Sprite):
         Row, Col = self.findCell()
         #print(Row, Col)
         if not Row == 9 and not Col == 9:
-           if self.coverField[Row][Col] == 0:
+           if self.coverField[Row][Col] == 0 and BombCounter.bombCount > 0:
               self.coverField[Row][Col] = 1
               BombCounter.bombCount -= 1
+              print(BombCounter.bombCount)
+           #elif self.coverField[Row][Col] == 1 and BombCounter.bombCount <= 20:
            elif self.coverField[Row][Col] == 1:
               self.coverField[Row][Col] = 0
               BombCounter.bombCount += 1
@@ -493,6 +496,8 @@ class allfield(pygame.sprite.Sprite):
                    screen.blit(self.blankImg, (blockX, blockY))
                 if self.coverField[arrayRow][arrayCol] == 1:
                    screen.blit(self.flagImg, (blockX, blockY))
+                if self.coverField[arrayRow][arrayCol] == 3:
+                   screen.blit(self.endBombImg, (blockX, blockY))
         #pass
 
     def update(self):
@@ -528,11 +533,6 @@ while not done:
             if event.key == pygame.K_a:
                 Allfield.pointerPos = BombCounter.changecount()
                 Allfield.pressA()
-                #Allfield.test(0, 4, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
-                print(Allfield.coverField)
-                #print(blockX, blockY,blockX+TILE_SIZE,blockY+TILE_SIZE )
-                #print(pointPosX, pointPosY)
-                #Allfield.test(Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
             if event.key == pygame.K_b:
                 Allfield.pointerPos = BombCounter.changecount()
                 Allfield.pressB()
