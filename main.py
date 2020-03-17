@@ -14,10 +14,12 @@ GREEN = (0, 255, 0)
 
 MAX_TIME = 180
 BOMBCOUNT = 20
-TILE_SIZE = 23
+TILE_SIZE = 20
 #MARGIN = TILE_SIZE
 MARGIN = 0
-PADDING = 8
+PADDING = 10
+ROWS = 9
+COLUMNS = 9
 timeElapsed = 0
 timeEnd = False
 
@@ -88,15 +90,15 @@ class Pointer(pygame.sprite.Sprite):
         #print(self.rect.topleft)
         self.x_point += self.x_change
         self.y_point += self.y_change
-        if (self.x_point <= 210):
+        if (self.x_point <= 220):
            self.rect.topleft = (self.x_point, self.y_point)
-        elif(self.x_point > 210):
-           self.x_point = 210
+        elif(self.x_point > 220):
+           self.x_point = 220
            self.rect.topleft = (self.x_point, self.y_point)
-        if (self.x_point >= 0):
+        if (self.x_point >= 15):
            self.rect.topleft = (self.x_point, self.y_point)
-        elif(self.x_point < 0):
-           self.x_point = 0
+        elif(self.x_point < 15):
+           self.x_point = 15
            self.rect.topleft = (self.x_point, self.y_point)
 
         if (self.y_point <= 220):
@@ -104,10 +106,10 @@ class Pointer(pygame.sprite.Sprite):
         elif(self.y_point > 220):
            self.y_point = 220
            self.rect.topleft = (self.x_point, self.y_point)
-        if (self.y_point >= 0):
+        if (self.y_point >= 15):
            self.rect.topleft = (self.x_point, self.y_point)
-        elif(self.y_point < 0):
-           self.y_point = 0
+        elif(self.y_point < 15):
+           self.y_point = 15
            self.rect.topleft = (self.x_point, self.y_point)
 
 
@@ -154,6 +156,7 @@ class allfield(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image_cover = minesign_image.get_image(305, 32, 20, 20)
         self.blankImg = minesign_image.get_image(330, 32, 20, 20)
+        self.flagImg = minesign_image.get_image(355, 32, 20, 20)
         self.bombImg = minesign_image.get_image(380, 32, 20, 20)
         self.bombCount = BOMBCOUNT
         self.ROWS = 9
@@ -183,28 +186,28 @@ class allfield(pygame.sprite.Sprite):
              [0,0,0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0,0,0],
              ]
-        self.coverField = [
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             [1,1,1,1,1,1,1,1,1],
-             ]
         #self.coverField = [
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
-        #     [0,0,0,0,0,0,0,0,0],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
+        #     [1,1,1,1,1,1,1,1,1],
         #     ]
+        self.coverField = [
+             [0,0,1,0,0,0,1,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             [0,0,0,0,0,0,0,0,0],
+             ]
         self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
@@ -440,11 +443,40 @@ class allfield(pygame.sprite.Sprite):
                         coverField[cellRow+1][cellColumn+1] = 1
                 self.testSurrounding(cellColumn+1, cellRow+1, self.mineField, self.touchingField, self.coverField)
 
+    def findCell(self):
+        pointPosX, pointPosY = self.pointerPos
+        xy = (9,9)
+        for arrayRow in range(0, ROWS):
+            blockY = arrayRow * (TILE_SIZE + 5)
+            blockY += PADDING
+            if pointPosY > blockY and pointPosY < blockY + TILE_SIZE:
+               for arrayCol in range(0, COLUMNS):
+                   blockX = arrayCol * (TILE_SIZE + 5)
+                   blockX += PADDING
+                   if pointPosX > blockX and pointPosX < blockX + TILE_SIZE:
+                                   xy = (arrayRow, arrayCol)
+        return (xy)
+
+    def pressB(self):
+        Row, Col = self.findCell()
+        #print(Row, Col)
+        if not Row == 9 and not Col == 9:
+           if self.coverField[Row][Col] == 0:
+              self.coverField[Row][Col] = 1
+        else:
+            pass
 
     def show(self):
-        #print(MAX_TIME-seconds)
-        #self.bombBlock(arrayCol, arrayRow, self.bombImg, self.blankImg)
-        self.bombBlock(self.mineField, self.touchingField,self.coverField, arrayCol, arrayRow, self.bombImg, self.blankImg)
+        for arrayRow in range(0, ROWS):
+            for arrayCol in range(0, COLUMNS):
+                blockX = arrayCol * (TILE_SIZE + 5)
+                blockY = arrayRow * (TILE_SIZE + 5)
+                blockX += PADDING
+                blockY += PADDING
+                if self.coverField[arrayRow][arrayCol] == 0:
+                   screen.blit(self.blankImg, (blockX, blockY))
+                if self.coverField[arrayRow][arrayCol] == 1:
+                   screen.blit(self.flagImg, (blockX, blockY))
         #pass
 
     def update(self):
@@ -491,10 +523,12 @@ while not done:
             if event.key == pygame.K_b:
                 Allfield.pointerPos = BombCounter.changecount()
                 pressKey = "B"
-                for arrayCol in range(0,9):
-                    for arrayRow in range(0,9):
-                        Allfield.test(arrayCol, arrayRow, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
-                print(Allfield.coverField)
+                #Allfield.findCell()
+                Allfield.pressB()
+                #for arrayCol in range(0,9):
+                #    for arrayRow in range(0,9):
+                #        Allfield.test(arrayCol, arrayRow, Allfield.mineField, Allfield.touchingField,Allfield.coverField, pressKey)
+                #print(Allfield.coverField)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
@@ -515,9 +549,10 @@ while not done:
     screen.blit(BombCounter.image1, (260,115))
     screen.blit(BombCounter.image2, (285,115))
     #screen.blit(Pointer.image_poin, (Pointer.x_point,Pointer.y_point))
-    for arrayRow in range(0,9):
-        for arrayCol in range(0,9):
-             Allfield.show()
+    #for arrayRow in range(0,9):
+    #    for arrayCol in range(0,9):
+    #         Allfield.show()
+    Allfield.show()
     #for i in range(0,10):
     #    for j in range(0,10):
     #        screen.blit(Allfield.image_cover, (3+(23*i), 3+(23*j)))
