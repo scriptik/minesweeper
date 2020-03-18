@@ -5,23 +5,7 @@ import random
 import math
 from pygame.locals import *
 from spritesheet_functions import SpriteSheet
-#from mainfield import mainfield
-
-# Define some colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
-
-MAX_TIME = 180
-BOMBCOUNT = 10
-TILE_SIZE = 20
-#MARGIN = TILE_SIZE
-MARGIN = 0
-PADDING = 10
-ROWS = 9
-COLUMNS = 9
-timeElapsed = 0
-timeEnd = False
+from constants import *
 
 # Call this function so the Pygame library can initialize itself
 pygame.init()
@@ -43,39 +27,6 @@ background_position = [0, 0]
 # Load and set up graphics.
 background_image = pygame.image.load("minebg.png").convert()
 minesign_image = SpriteSheet("minesign.png")
-
-def timer_sec():
-    global timeElapsed
-    global seconds
-    #timeElapsed += 16.66676
-    seconds = round(timeElapsed / 1000)
-    #print(180-seconds)
-
-    if MAX_TIME-seconds >= 0:
-       global timeEnd
-       rem_sec = str(MAX_TIME-seconds)
-       dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
-       if len(rem_sec) == 3:
-          x1_dig = dig_pos[rem_sec[0]]
-          x2_dig = dig_pos[rem_sec[1]]
-          x3_dig = dig_pos[rem_sec[2]]
-       elif len(rem_sec) == 2:
-          x1_dig = dig_pos["0"]
-          x2_dig = dig_pos[rem_sec[0]]
-          x3_dig = dig_pos[rem_sec[1]]
-       elif len(rem_sec) == 1:
-          x1_dig = dig_pos["0"]
-          x2_dig = dig_pos["0"]
-          x3_dig = dig_pos[rem_sec[0]]
-       return(x1_dig,x2_dig,x3_dig,timeEnd)
-    else:
-       dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
-       print("Time END")
-       x1_dig = dig_pos["0"]
-       x2_dig = dig_pos["0"]
-       x3_dig = dig_pos["0"]
-       timeEnd = True
-       return(x1_dig,x2_dig,x3_dig,timeEnd)
 
 class Pointer(pygame.sprite.Sprite):
     def __init__(self,x_change,y_change):
@@ -117,9 +68,41 @@ class Pointer(pygame.sprite.Sprite):
 class TimerDig(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+    def timer_sec(self):
+        global timeElapsed
+        global seconds
+        #timeElapsed += 16.66676
+        seconds = round(timeElapsed / 1000)
+        #print(180-seconds)
+
+        if MAX_TIME-seconds >= 0:
+           global timeEnd
+           rem_sec = str(MAX_TIME-seconds)
+           dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
+           if len(rem_sec) == 3:
+              x1_dig = dig_pos[rem_sec[0]]
+              x2_dig = dig_pos[rem_sec[1]]
+              x3_dig = dig_pos[rem_sec[2]]
+           elif len(rem_sec) == 2:
+              x1_dig = dig_pos["0"]
+              x2_dig = dig_pos[rem_sec[0]]
+              x3_dig = dig_pos[rem_sec[1]]
+           elif len(rem_sec) == 1:
+              x1_dig = dig_pos["0"]
+              x2_dig = dig_pos["0"]
+              x3_dig = dig_pos[rem_sec[0]]
+           return(x1_dig,x2_dig,x3_dig,timeEnd)
+        else:
+           dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
+           print("Time END")
+           x1_dig = dig_pos["0"]
+           x2_dig = dig_pos["0"]
+           x3_dig = dig_pos["0"]
+           timeEnd = True
+           return(x1_dig,x2_dig,x3_dig,timeEnd)
     def update(self):
         #print(timeElapsed)
-        xdig1, xdig2, xdig3, enti = timer_sec()
+        xdig1, xdig2, xdig3, enti = self.timer_sec()
         self.image1 = minesign_image.get_image(xdig1, 7.5, 25, 45)
         self.image2 = minesign_image.get_image(xdig2, 7.5, 25, 45)
         self.image3 = minesign_image.get_image(xdig3, 7.5, 25, 45)
@@ -165,39 +148,9 @@ class allfield(pygame.sprite.Sprite):
         self.gameStop = False
 
         #Define the defualt array for mineField, touchingField, and coverField.
-        self.mineField = [
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             ]
-        self.touchingField = [
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             ]
-        self.coverField = [
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             [0,0,0,0,0,0,0,0,0],
-             ]
+        self.mineField = mineField
+        self.touchingField = touchingField
+        self.coverField = coverField
         self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
