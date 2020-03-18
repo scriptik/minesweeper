@@ -29,9 +29,9 @@ background_image = pygame.image.load("minebg.png").convert()
 minesign_image = SpriteSheet("minesign.png")
 
 class Pointer(pygame.sprite.Sprite):
-    def __init__(self,x_change,y_change):
-        self.x_change = x_change
-        self.y_change = y_change
+    def __init__(self):
+        self.x_change = 0
+        self.y_change = 0
         pygame.sprite.Sprite.__init__(self)
         self.image_poin = minesign_image.get_image(305, 8, 26.5, 24)
         self.rect = self.image_poin.get_rect()
@@ -402,7 +402,7 @@ class allfield(pygame.sprite.Sprite):
 
 all_sprites = pygame.sprite.Group()
 TimerDig = TimerDig()
-Pointer = Pointer(0,0)
+Pointer = Pointer()
 Allfield = allfield()
 BombCounter = BombCounter()
 all_sprites.add(TimerDig,BombCounter,Allfield)
