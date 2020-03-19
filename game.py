@@ -156,6 +156,21 @@ class allfield(pygame.sprite.Sprite):
              for blockX in range(self.COLUMNS):
                   self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS)
         print(self.touchingField)
+
+
+    def resetAll(self):
+        self.gameStop = False
+        self.mineField = self.placeBombs(self.bombCount)
+        for blockY in range(self.ROWS):
+             for blockX in range(self.COLUMNS):
+                  self.coverField[blockX][blockY] = 0
+                  self.touchingField[blockX][blockY] = 0
+        for blockY in range(self.ROWS):
+             for blockX in range(self.COLUMNS):
+                  self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS)
+        print(self.coverField)
+        print(self.touchingField)
+
     #Randomly place bombs in mineField.
     def placeBombs(self,bombCount):
         mineField = [
@@ -430,6 +445,10 @@ while not done:
             if event.key == pygame.K_b:
                 Allfield.pointerPos = BombCounter.changecount()
                 Allfield.pressB()
+            if event.key == pygame.K_y:
+                Allfield.resetAll()
+                timeElapsed = 0
+                BombCounter.bombCount = 10
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
