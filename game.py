@@ -130,8 +130,8 @@ class GameEnd(pygame.sprite.Sprite):
               self.screen.blit(self.gameover, (235,170))
            if self.status == "W":
               self.screen.blit(self.youwon, (235,170))
-        else:
-           pygame.draw.rect(self.screen, (255, 255, 255), (235, 170, 75, 40), 0)
+        #else:
+        #   pygame.draw.rect(self.screen, (255, 255, 255), (235, 170, 75, 40), 0)
 
 
 class BombCounter(pygame.sprite.Sprite):
