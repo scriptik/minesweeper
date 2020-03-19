@@ -72,10 +72,11 @@ class TimeSec():
         self.timeElapsed = 0
         self.seconds = 0
         self.endtime = False
+        self.gameWon = False
     def update(self):
         self.timeElapsed += 40
         self.seconds = round(self.timeElapsed / 1000)
-        if self.MAX_TIME-self.seconds == 0:
+        if self.MAX_TIME-self.seconds == 0 and not self.gameWon:
            self.endtime = True
 
 class TimerDig(pygame.sprite.Sprite):
@@ -89,7 +90,6 @@ class TimerDig(pygame.sprite.Sprite):
         self.seconds = 0
         self.MAX_TIME = MAX_TIME
     def timer_sec(self):
-
         if self.MAX_TIME-self.seconds >= 0:
            rem_sec = str(self.MAX_TIME-self.seconds)
            dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
@@ -197,7 +197,6 @@ class allfield(pygame.sprite.Sprite):
            self.gameWon = True
 
     def resetAll(self):
-        self.gameStop = False
         self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
@@ -493,9 +492,12 @@ while not done:
                 Allfield.resetAll()
                 BombCounter.bombCount = 10
                 Allfield.gameOver = False
+                Allfield.gameStop = False
                 TimeSec.endtime = False
+                TimeSec.gameWon = False
                 TimeSec.seconds = 0
                 TimeSec.timeElapsed = 0
+                TimerDig.stopcount = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
@@ -528,6 +530,7 @@ while not done:
        Allfield.gameCheck()
        if Allfield.gameWon:
           GameEnd.show("W")
+          TimeSec.gameWon = True
           TimerDig.stopcount = True
     if Allfield.gameOver:
           GameEnd.show("G")
