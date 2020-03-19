@@ -29,6 +29,7 @@ background_position = [0, 0]
 background_image = pygame.image.load("minebg.png").convert()
 minesign_image = SpriteSheet("minesign.png")
 
+
 class Pointer(pygame.sprite.Sprite):
     def __init__(self):
         self.x_change = 0
@@ -65,59 +66,66 @@ class Pointer(pygame.sprite.Sprite):
            self.rect.topleft = (self.x_point, self.y_point)
 
 
+class TimeSec():
+    def __init__(self):
+        self.MAX_TIME = MAX_TIME
+        self.timeElapsed = 0
+        self.seconds = 0
+        self.endtime = False
+    def update(self):
+        self.timeElapsed += 40
+        self.seconds = round(self.timeElapsed / 1000)
+        if self.MAX_TIME-self.seconds == 0:
+           self.endtime = True
 
 class TimerDig(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+        self.stopcount = False
+        self.x1_dig = 35
+        self.x2_dig = 245
+        self.x3_dig = 5
+        self.endtime = False
+        self.seconds = 0
+        self.MAX_TIME = MAX_TIME
     def timer_sec(self):
-        global timeElapsed
-        global seconds
-        #timeElapsed += 16.66676
-        seconds = round(timeElapsed / 1000)
-        #print(180-seconds)
 
-        if MAX_TIME-seconds >= 0:
-           global timeEnd
-           rem_sec = str(MAX_TIME-seconds)
+        if self.MAX_TIME-self.seconds >= 0:
+           rem_sec = str(self.MAX_TIME-self.seconds)
            dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
            if len(rem_sec) == 3:
-              x1_dig = dig_pos[rem_sec[0]]
-              x2_dig = dig_pos[rem_sec[1]]
-              x3_dig = dig_pos[rem_sec[2]]
+              self.x1_dig = dig_pos[rem_sec[0]]
+              self.x2_dig = dig_pos[rem_sec[1]]
+              self.x3_dig = dig_pos[rem_sec[2]]
            elif len(rem_sec) == 2:
-              x1_dig = dig_pos["0"]
-              x2_dig = dig_pos[rem_sec[0]]
-              x3_dig = dig_pos[rem_sec[1]]
+              self.x1_dig = dig_pos["0"]
+              self.x2_dig = dig_pos[rem_sec[0]]
+              self.x3_dig = dig_pos[rem_sec[1]]
            elif len(rem_sec) == 1:
-              x1_dig = dig_pos["0"]
-              x2_dig = dig_pos["0"]
-              x3_dig = dig_pos[rem_sec[0]]
-           return(x1_dig,x2_dig,x3_dig,timeEnd)
+              self.x1_dig = dig_pos["0"]
+              self.x2_dig = dig_pos["0"]
+              self.x3_dig = dig_pos[rem_sec[0]]
         else:
            dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
-           print("Time END")
-           x1_dig = dig_pos["0"]
-           x2_dig = dig_pos["0"]
-           x3_dig = dig_pos["0"]
-           timeEnd = True
-           return(x1_dig,x2_dig,x3_dig,timeEnd)
+           self.x1_dig = dig_pos["0"]
+           self.x2_dig = dig_pos["0"]
+           self.x3_dig = dig_pos["0"]
     def update(self):
-        #print(timeElapsed)
-        xdig1, xdig2, xdig3, enti = self.timer_sec()
-        self.image1 = minesign_image.get_image(xdig1, 7.5, 25, 45)
-        self.image2 = minesign_image.get_image(xdig2, 7.5, 25, 45)
-        self.image3 = minesign_image.get_image(xdig3, 7.5, 25, 45)
+        self.timer_sec()
+        self.image1 = minesign_image.get_image(self.x1_dig, 7.5, 25, 45)
+        self.image2 = minesign_image.get_image(self.x2_dig, 7.5, 25, 45)
+        self.image3 = minesign_image.get_image(self.x3_dig, 7.5, 25, 45)
 
 class GameEnd(pygame.sprite.Sprite):
-    global seconds
     def __init__(self, screen):
         pygame.sprite.Sprite.__init__(self)
         self.screen = screen
         self.gameover = minesign_image.get_image(455, 15, 75, 40)
         self.youwon = minesign_image.get_image(535, 15, 75, 40)
+        self.seconds = 0
     def show(self, status):
         self.status = status
-        if seconds % 2 == 0:
+        if self.seconds % 2 == 0:
            if self.status == "G":
               self.screen.blit(self.gameover, (235,170))
            if self.status == "W":
@@ -167,6 +175,7 @@ class allfield(pygame.sprite.Sprite):
         self.gameStop = False
         self.gameWon = False
         self.gameOver = False
+        self.zero = 0
 
         #Define the defualt array for mineField, touchingField, and coverField.
         self.mineField = mineField
@@ -179,12 +188,11 @@ class allfield(pygame.sprite.Sprite):
         print(self.touchingField)
 
     def gameCheck(self):
-        zero = 0
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
                  if self.coverField[blockX][blockY] == 0:
-                     zero += 1
-        if zero == 0:
+                     self.zero += 1
+        if self.zero == 0:
            self.gameStop = True
            self.gameWon = True
 
@@ -447,6 +455,7 @@ class allfield(pygame.sprite.Sprite):
 
 
 all_sprites = pygame.sprite.Group()
+TimeSec = TimeSec()
 TimerDig = TimerDig()
 Pointer = Pointer()
 GameEnd = GameEnd(screen)
@@ -455,8 +464,8 @@ BombCounter = BombCounter()
 all_sprites.add(TimerDig,BombCounter,Allfield)
 
 BootScreen = BootScreen(screen)
-BootScreen.main()
 
+BootScreen.main()
 done = False
 while not done:
     #clock.tick_busy_loop(30)
@@ -482,9 +491,11 @@ while not done:
                 Allfield.pressB()
             if event.key == pygame.K_y:
                 Allfield.resetAll()
-                timeElapsed = 0
                 BombCounter.bombCount = 10
                 Allfield.gameOver = False
+                TimeSec.endtime = False
+                TimeSec.seconds = 0
+                TimeSec.timeElapsed = 0
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
@@ -505,17 +516,26 @@ while not done:
     screen.blit(BombCounter.image1, (260,115))
     screen.blit(BombCounter.image2, (285,115))
     Allfield.show()
+    TimeSec.update()
+    if not Allfield.gameStop:
+       TimerDig.seconds = TimeSec.seconds
+    GameEnd.seconds = TimeSec.seconds
     screen.blit(Pointer.image_poin, (Pointer.rect))
     #timeElapsed += 16.66676
-    timeElapsed += 40
-    #if not Allfield.gameWon:
-    #   GameEnd.show("W")
+    #timeElapsed += 40
     if BombCounter.bombCount == 0:
+       Allfield.zero = 0
        Allfield.gameCheck()
        if Allfield.gameWon:
           GameEnd.show("W")
+          TimerDig.stopcount = True
     if Allfield.gameOver:
           GameEnd.show("G")
+          TimerDig.stopcount = True
+    if TimeSec.endtime:
+          GameEnd.show("G")
+          Allfield.gameStop = True
+
     pygame.display.flip()
     clock.tick(30)
 
