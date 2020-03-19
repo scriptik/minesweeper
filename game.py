@@ -108,6 +108,24 @@ class TimerDig(pygame.sprite.Sprite):
         self.image2 = minesign_image.get_image(xdig2, 7.5, 25, 45)
         self.image3 = minesign_image.get_image(xdig3, 7.5, 25, 45)
 
+class GameEnd(pygame.sprite.Sprite):
+    global seconds
+    def __init__(self, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.screen = screen
+        self.gameover = minesign_image.get_image(455, 15, 75, 40)
+        self.youwon = minesign_image.get_image(535, 15, 75, 40)
+    def show(self, status):
+        self.status = status
+        if seconds % 2 == 0:
+           if self.status == "G":
+              self.screen.blit(self.gameover, (235,170))
+           if self.status == "W":
+              self.screen.blit(self.youwon, (235,170))
+        else:
+           pygame.draw.rect(self.screen, (255, 255, 255), (235, 170, 75, 40), 0)
+
+
 class BombCounter(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -147,6 +165,8 @@ class allfield(pygame.sprite.Sprite):
         self.COLUMNS = 9
         self.pointerPos = (0, 0)
         self.gameStop = False
+        self.gameWon = False
+        self.gameOver = False
 
         #Define the defualt array for mineField, touchingField, and coverField.
         self.mineField = mineField
@@ -158,6 +178,15 @@ class allfield(pygame.sprite.Sprite):
                   self.searchSurrounding(blockX, blockY, self.ROWS, self.COLUMNS)
         print(self.touchingField)
 
+    def gameCheck(self):
+        zero = 0
+        for blockY in range(self.ROWS):
+             for blockX in range(self.COLUMNS):
+                 if self.coverField[blockX][blockY] == 0:
+                     zero += 1
+        if zero == 0:
+           self.gameStop = True
+           self.gameWon = True
 
     def resetAll(self):
         self.gameStop = False
@@ -365,6 +394,7 @@ class allfield(pygame.sprite.Sprite):
               self.coverField[Row][Col] = 3
               self.bombinCover()
               self.gameStop = True
+              self.gameOver = True
               #BombCounter.bombCount += 1
            elif self.coverField[Row][Col] == 0 and self.mineField[Row][Col] == 0:
               self.coverField[Row][Col] = 5
@@ -419,6 +449,7 @@ class allfield(pygame.sprite.Sprite):
 all_sprites = pygame.sprite.Group()
 TimerDig = TimerDig()
 Pointer = Pointer()
+GameEnd = GameEnd(screen)
 Allfield = allfield()
 BombCounter = BombCounter()
 all_sprites.add(TimerDig,BombCounter,Allfield)
@@ -453,6 +484,7 @@ while not done:
                 Allfield.resetAll()
                 timeElapsed = 0
                 BombCounter.bombCount = 10
+                Allfield.gameOver = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
@@ -476,6 +508,14 @@ while not done:
     screen.blit(Pointer.image_poin, (Pointer.rect))
     #timeElapsed += 16.66676
     timeElapsed += 40
+    #if not Allfield.gameWon:
+    #   GameEnd.show("W")
+    if BombCounter.bombCount == 0:
+       Allfield.gameCheck()
+       if Allfield.gameWon:
+          GameEnd.show("W")
+    if Allfield.gameOver:
+          GameEnd.show("G")
     pygame.display.flip()
     clock.tick(30)
 
