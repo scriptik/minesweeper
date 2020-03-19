@@ -6,6 +6,7 @@ import math
 from pygame.locals import *
 from spritesheet_functions import SpriteSheet
 from constants import *
+from boot_screen import BootScreen
 
 # Call this function so the Pygame library can initialize itself
 pygame.init()
@@ -421,8 +422,11 @@ Pointer = Pointer()
 Allfield = allfield()
 BombCounter = BombCounter()
 all_sprites.add(TimerDig,BombCounter,Allfield)
-done = False
 
+BootScreen = BootScreen(screen)
+BootScreen.main()
+
+done = False
 while not done:
     #clock.tick_busy_loop(30)
     for event in pygame.event.get():
