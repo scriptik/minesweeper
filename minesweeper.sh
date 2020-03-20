@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python main.py
+python game.py
 
