@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import pygame
 import sys
 import time
@@ -10,9 +11,17 @@ from boot_screen import BootScreen
 
 # Call this function so the Pygame library can initialize itself
 pygame.init()
+display_width = pygame.display.Info().current_w
+display_height = pygame.display.Info().current_h
+#print(display_width, display_height)
+if display_width == 320 and display_height == 240:
+   screen = pygame.display.set_mode([320, 240], pygame.FULLSCREEN)
+else :
+   screen = pygame.display.set_mode([320, 240])
+
 
 # Create an 320x240 sized screen
-screen = pygame.display.set_mode([320, 240])
+#screen = pygame.display.set_mode([320, 240])
 
 # This sets the name of the window
 pygame.display.set_caption('minesweeper')
@@ -72,11 +81,10 @@ class TimeSec():
         self.timeElapsed = 0
         self.seconds = 0
         self.endtime = False
-        self.gameWon = False
     def update(self):
         self.timeElapsed += 40
         self.seconds = round(self.timeElapsed / 1000)
-        if self.MAX_TIME-self.seconds == 0 and not self.gameWon:
+        if self.MAX_TIME-self.seconds == 0:
            self.endtime = True
 
 class TimerDig(pygame.sprite.Sprite):
@@ -84,37 +92,45 @@ class TimerDig(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.stopcount = False
         self.x1_dig = 35
-        self.x2_dig = 245
+        self.x2_dig = 65
         self.x3_dig = 5
         self.endtime = False
         self.seconds = 0
         self.MAX_TIME = MAX_TIME
-    def timer_sec(self):
-        if self.MAX_TIME-self.seconds >= 0:
-           rem_sec = str(self.MAX_TIME-self.seconds)
-           dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
-           if len(rem_sec) == 3:
-              self.x1_dig = dig_pos[rem_sec[0]]
-              self.x2_dig = dig_pos[rem_sec[1]]
-              self.x3_dig = dig_pos[rem_sec[2]]
-           elif len(rem_sec) == 2:
-              self.x1_dig = dig_pos["0"]
-              self.x2_dig = dig_pos[rem_sec[0]]
-              self.x3_dig = dig_pos[rem_sec[1]]
-           elif len(rem_sec) == 1:
-              self.x1_dig = dig_pos["0"]
-              self.x2_dig = dig_pos["0"]
-              self.x3_dig = dig_pos[rem_sec[0]]
-        else:
-           dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
-           self.x1_dig = dig_pos["0"]
-           self.x2_dig = dig_pos["0"]
-           self.x3_dig = dig_pos["0"]
-    def update(self):
-        self.timer_sec()
+        self.dig_pos = {"0":5,"1":35,"2":65,"3":95,"4":125,"5":155,"6":185,"7":215,"8":245,"9":275}
+        #self.rem_sec = "000"
+        self.rem_sec = str(int(self.MAX_TIME-self.seconds))
         self.image1 = minesign_image.get_image(self.x1_dig, 7.5, 25, 45)
         self.image2 = minesign_image.get_image(self.x2_dig, 7.5, 25, 45)
         self.image3 = minesign_image.get_image(self.x3_dig, 7.5, 25, 45)
+
+    def timer_sec(self):
+        self.rem_sec = str(int(self.MAX_TIME-self.seconds))
+        if self.MAX_TIME-self.seconds >= 0:
+           if len(self.rem_sec) == 3:
+              self.x1_dig = self.dig_pos[self.rem_sec[0]]
+              self.x2_dig = self.dig_pos[self.rem_sec[1]]
+              self.x3_dig = self.dig_pos[self.rem_sec[2]]
+           elif len(self.rem_sec) == 2:
+              self.x1_dig = self.dig_pos["0"]
+              self.x2_dig = self.dig_pos[self.rem_sec[0]]
+              self.x3_dig = self.dig_pos[self.rem_sec[1]]
+           elif len(self.rem_sec) == 1:
+              self.x1_dig = self.dig_pos["0"]
+              self.x2_dig = self.dig_pos["0"]
+              self.x3_dig = self.dig_pos[self.rem_sec[0]]
+        else:
+           self.x1_dig = self.dig_pos["0"]
+           self.x2_dig = self.dig_pos["0"]
+           self.x3_dig = self.dig_pos["0"]
+        self.image1 = minesign_image.get_image(self.x1_dig, 7.5, 25, 45)
+        self.image2 = minesign_image.get_image(self.x2_dig, 7.5, 25, 45)
+        self.image3 = minesign_image.get_image(self.x3_dig, 7.5, 25, 45)
+    #def update(self):
+    #    #self.timer_sec()
+    #    self.image1 = minesign_image.get_image(self.x1_dig, 7.5, 25, 45)
+    #    self.image2 = minesign_image.get_image(self.x2_dig, 7.5, 25, 45)
+    #    self.image3 = minesign_image.get_image(self.x3_dig, 7.5, 25, 45)
 
 class GameEnd(pygame.sprite.Sprite):
     def __init__(self, screen):
@@ -197,6 +213,7 @@ class allfield(pygame.sprite.Sprite):
            self.gameWon = True
 
     def resetAll(self):
+        self.gameStop = False
         self.mineField = self.placeBombs(self.bombCount)
         for blockY in range(self.ROWS):
              for blockX in range(self.COLUMNS):
@@ -283,7 +300,8 @@ class allfield(pygame.sprite.Sprite):
         #Display text object in gameDispay.
     def textDisplay(self, text, x, y, color, type):
         if type == "Block":
-                numberText = pygame.font.Font("minesweeper.ttf", round(TILE_SIZE*(2/3)-4))
+                #numberText = pygame.font.Font("minesweeper.ttf", round(TILE_SIZE*(2/3)-4))
+                numberText = pygame.font.Font("minesweeper.ttf", 9)
                 textSurf, textRect = self.textObjects(text, numberText, color)
                 #textRect.center = (x + TILE_SIZE/2, y + TILE_SIZE/2)
                 textRect.center = (int(x + TILE_SIZE/2), int(y + TILE_SIZE/2))
@@ -460,7 +478,8 @@ Pointer = Pointer()
 GameEnd = GameEnd(screen)
 Allfield = allfield()
 BombCounter = BombCounter()
-all_sprites.add(TimerDig,BombCounter,Allfield)
+#all_sprites.add(TimerDig,BombCounter,Allfield)
+all_sprites.add(BombCounter,Allfield)
 
 BootScreen = BootScreen(screen)
 
@@ -482,22 +501,19 @@ while not done:
                 Pointer.x_change = 3
             if event.key == pygame.K_LEFT:
                 Pointer.x_change = -3
-            if event.key == pygame.K_a:
+            if event.key == pygame.K_j:
                 Allfield.pointerPos = BombCounter.changecount()
                 Allfield.pressA()
-            if event.key == pygame.K_b:
+            if event.key == pygame.K_k:
                 Allfield.pointerPos = BombCounter.changecount()
                 Allfield.pressB()
-            if event.key == pygame.K_y:
+            if event.key == pygame.K_i:
                 Allfield.resetAll()
                 BombCounter.bombCount = 10
                 Allfield.gameOver = False
-                Allfield.gameStop = False
                 TimeSec.endtime = False
-                TimeSec.gameWon = False
                 TimeSec.seconds = 0
                 TimeSec.timeElapsed = 0
-                TimerDig.stopcount = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 Pointer.x_change = 0
@@ -509,6 +525,11 @@ while not done:
 
 
     Pointer.xy_move()
+    TimeSec.update()
+    if not Allfield.gameStop:
+       TimerDig.seconds = TimeSec.seconds
+    GameEnd.seconds = TimeSec.seconds
+    TimerDig.timer_sec()
     all_sprites.update()
     # Copy image to screen:
     screen.blit(background_image, background_position)
@@ -518,10 +539,6 @@ while not done:
     screen.blit(BombCounter.image1, (260,115))
     screen.blit(BombCounter.image2, (285,115))
     Allfield.show()
-    TimeSec.update()
-    if not Allfield.gameStop:
-       TimerDig.seconds = TimeSec.seconds
-    GameEnd.seconds = TimeSec.seconds
     screen.blit(Pointer.image_poin, (Pointer.rect))
     #timeElapsed += 16.66676
     #timeElapsed += 40
@@ -530,7 +547,6 @@ while not done:
        Allfield.gameCheck()
        if Allfield.gameWon:
           GameEnd.show("W")
-          TimeSec.gameWon = True
           TimerDig.stopcount = True
     if Allfield.gameOver:
           GameEnd.show("G")
